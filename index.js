@@ -14,6 +14,31 @@ const talker = async () => {
   return JSON.parse(talkerFile);
 };
 
+const validateEmail = (request, response, next) => {
+  const { email } = request.body;
+  const verifyEmail = /\S+@\S+\.\S+/;
+  if (!email || email.length === 0) {
+    return response.status(400).json({ message: 'O campo "email" é obrigatório' });
+  }
+  if (!verifyEmail.test(email)) {
+    return response.status(400).json({
+      message: 'O "email" deve ter o formato "email@email.com"' });
+  }
+  next();
+};
+
+const validatePassword = (request, response, next) => {
+  const { password } = request.body;
+  if (!password || password.length === 0) {
+    return response.status(400).json({ message: 'O campo "password" é obrigatório' });
+  }
+  if (password.length < 6) {
+    return response.status(400).json({
+      message: 'O "password" deve ter pelo menos 6 caracteres' });
+  }
+  next();
+};
+
 // não remova esse endpoint, e para o avaliador funcionar
 app.get('/', (_request, response) => {
   response.status(HTTP_OK_STATUS).send();
@@ -43,11 +68,10 @@ app.get('/talker/:id', async (request, response) => {
   }
 });
 
-app.post('/login', (request, response) => {
+app.post('/login', validateEmail, validatePassword, (request, response) => {
   try {
-    const { email, password } = request.body;
     const token = crypto.randomBytes(8).toString('hex');
-    response.status(200).json({ email, password, token });
+    response.status(200).json({ token });
   } catch (error) {
     response.status(500).json(error);
   }
