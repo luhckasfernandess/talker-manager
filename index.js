@@ -2,6 +2,17 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const fs = require('fs').promises;
 const crypto = require('crypto');
+const validations = require('./middlewares/validations');
+
+const {
+  validateEmail,
+  validatePassword,
+  validateToken,
+  validateName,
+  validateAge,
+  validateTalk,
+  validateWatchedAt,
+  validateRate } = validations;
 
 const app = express();
 app.use(bodyParser.json());
@@ -10,33 +21,8 @@ const HTTP_OK_STATUS = 200;
 const PORT = '3000';
 
 const talker = async () => {
-  const talkerFile = await fs.readFile('./talker.json', 'utf-8');
-  return JSON.parse(talkerFile);
-};
-
-const validateEmail = (request, response, next) => {
-  const { email } = request.body;
-  const verifyEmail = /\S+@\S+\.\S+/;
-  if (!email || email.length === 0) {
-    return response.status(400).json({ message: 'O campo "email" é obrigatório' });
-  }
-  if (!verifyEmail.test(email)) {
-    return response.status(400).json({
-      message: 'O "email" deve ter o formato "email@email.com"' });
-  }
-  next();
-};
-
-const validatePassword = (request, response, next) => {
-  const { password } = request.body;
-  if (!password || password.length === 0) {
-    return response.status(400).json({ message: 'O campo "password" é obrigatório' });
-  }
-  if (password.length < 6) {
-    return response.status(400).json({
-      message: 'O "password" deve ter pelo menos 6 caracteres' });
-  }
-  next();
+  const readTalker = await fs.readFile('./talker.json', 'utf-8');
+  return JSON.parse(readTalker);
 };
 
 // não remova esse endpoint, e para o avaliador funcionar
@@ -73,6 +59,26 @@ app.post('/login', validateEmail, validatePassword, (request, response) => {
     const token = crypto.randomBytes(8).toString('hex');
     response.status(200).json({ token });
   } catch (error) {
+    response.status(500).json(error);
+  }
+});
+
+app.post('/talker', validateToken, validateName, validateAge,
+  validateTalk, validateRate, validateWatchedAt, async (request, response) => {
+    try {
+    const { name, age, talk } = request.body;
+
+    // Avancei nesse requisito graças a ajuda do MD e do Caio na mentoria
+
+    const talkerList = await talker();
+    const newId = talkerList.length + 1;
+    talkerList.push({ id: newId, name, age, talk });
+
+    await fs.writeFile('./talker.json', JSON.stringify(talkerList));
+
+    response.status(201).json({ id: newId, name, age, talk });
+  } catch (error) {
+    console.log('passei por aqui');
     response.status(500).json(error);
   }
 });
