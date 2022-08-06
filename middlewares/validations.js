@@ -101,7 +101,7 @@ function Rate(request, response, next) {
   const { talk: { rate } } = request.body;
   const verifyRate = /^[1-5]$/;
     
-  if (!rate) {
+  if (rate === undefined) {
     return response.status(400).json({ message: 'O campo "rate" é obrigatório' });
   }
     

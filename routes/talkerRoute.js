@@ -24,7 +24,7 @@ talkerRoute.get('/:id', async (request, response) => {
     try {
         const { id } = request.params;
         const talkerList = await talkerReadFile();
-        const talkerId = talkerList.find((t) => t.id === Number(id));
+        const talkerId = talkerList.find((talker) => talker.id === Number(id));
         if (!talkerId) response.status(404).json({ message: 'Pessoa palestrante não encontrada' });
         return response.status(200).json(talkerId);
     } catch (error) {
@@ -50,6 +50,26 @@ talkerRoute.post('', validations.Token, validations.Name, validations.Age,
     } catch (error) {
         console.log(error);
         return response.status(500).json({ message: ERROR_MESSAGE });
+    }
+});
+
+talkerRoute.put('/:id', validations.Token, validations.Name, validations.Age,
+    validations.Talk, validations.Rate, validations.WatchedAt, async (request, response) => {
+    try {
+        const { id } = request.params;
+        const { name, age, talk } = request.body;
+        const talkerList = await talkerReadFile();
+
+        // Source findIndex: https://developer.mozilla.org/pt-BR/docs/Web/JavaScript/Reference/Global_Objects/Array/findIndex
+        const indexTalkerId = talkerList.findIndex((talker) => talker.id === Number(id));
+        talkerList[indexTalkerId] = { ...talkerList[indexTalkerId], name, age, talk };
+
+        await fs.writeFile('./talker.json', JSON.stringify(talkerList));
+
+        return response.status(200).json(talkerList[indexTalkerId]);
+    } catch (error) {
+        console.log(error);
+        return response.status(500).json({ message: ERROR_MESSAGE }); 
     }
 });
 
