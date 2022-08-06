@@ -1,4 +1,4 @@
-function validateEmail(request, response, next) {
+function Email(request, response, next) {
   const { email } = request.body;
   const verifyEmail = /\S+@\S+\.\S+/;
 
@@ -14,7 +14,7 @@ function validateEmail(request, response, next) {
   next();
 }
   
-function validatePassword(request, response, next) {
+function Password(request, response, next) {
   const { password } = request.body;
 
   if (!password || password.length === 0) {
@@ -29,7 +29,7 @@ function validatePassword(request, response, next) {
   next();
 }
 
-function validateToken(request, response, next) {
+function Token(request, response, next) {
   const { authorization } = request.headers;
 
   if (!authorization) response.status(401).json({ message: 'Token não encontrado' });
@@ -41,7 +41,7 @@ function validateToken(request, response, next) {
   next();
 }
 
-function validateName(request, response, next) {
+function Name(request, response, next) {
   const { name } = request.body;
 
   if (!name || name.length === 0) {
@@ -55,7 +55,7 @@ function validateName(request, response, next) {
   next();
 }
 
-function validateAge(request, response, next) {
+function Age(request, response, next) {
   const { age } = request.body;
 
   if (!age || age.length === 0) {
@@ -69,7 +69,7 @@ function validateAge(request, response, next) {
   next();
 }
 
-function validateTalk(request, response, next) {
+function Talk(request, response, next) {
   const { talk } = request.body;
     
   if (!talk) {
@@ -79,7 +79,7 @@ function validateTalk(request, response, next) {
   next();
 }
 
-function validateWatchedAt(request, response, next) {
+function WatchedAt(request, response, next) {
   const { talk: { watchedAt } } = request.body;
   // Consegui esse regex com a ajuda do Caio que me enviou no chat da mentoria
   // Branch do Caio -> https://github.com/tryber/sd-020-a-project-talker-manager/tree/caio-galvao-sd-020-a-project-talker-manager
@@ -97,7 +97,7 @@ function validateWatchedAt(request, response, next) {
   next();
 }
   
-function validateRate(request, response, next) {
+function Rate(request, response, next) {
   const { talk: { rate } } = request.body;
   const verifyRate = /^[1-5]$/;
     
@@ -113,12 +113,12 @@ function validateRate(request, response, next) {
 }
 
 module.exports = {
-    validateEmail,
-    validatePassword,
-    validateToken,
-    validateName,
-    validateAge,
-    validateTalk,
-    validateWatchedAt,
-    validateRate,
+    Email,
+    Password,
+    Token,
+    Name,
+    Age,
+    Talk,
+    WatchedAt,
+    Rate,
 };
